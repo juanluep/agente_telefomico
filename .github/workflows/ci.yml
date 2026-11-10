@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+        env:
+          # build no debe tocar secretos; rellena lo mínimo exigido por lib/env
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+          APP_DB_USER: app_user
+          APP_DB_PASSWORD: ci
+          APP_URL: https://ci.example
+          DEFAULT_TIMEZONE: Europe/Madrid
+          DEFAULT_COUNTRY_CODE: ES
+
+      # CLAUDE.md y AGENTS.md deben ser idénticos byte a byte (§0.3).
+      - name: Doc parity (CLAUDE.md == AGENTS.md)
+        run: |
+          if [ ! -f CLAUDE.md ] || [ ! -f AGENTS.md ]; then
+            echo "Falta CLAUDE.md o AGENTS.md"; exit 1
+          fi
+          H1=$(shasum -a 256 CLAUDE.md | awk '{print $1}')
+          H2=$(shasum -a 256 AGENTS.md | awk '{print $1}')
+          echo "CLAUDE.md $H1"
+          echo "AGENTS.md $H2"
+          [ "$H1" = "$H2" ] || { echo "CLAUDE.md y AGENTS.md han divergido"; exit 1; }

@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────────
+# docker-compose.dokploy.yml — Despliegue en VPS con Dokploy (§16.2)
+# ─────────────────────────────────────────────────────────────────────
+# Reglas críticas (documentadas en el README):
+#   - La app NO publica puertos: usa `expose`. Publica Traefik, no Docker.
+#   - La BD no publica ningún puerto: solo red interna. Acceso por Tailscale.
+#   - La app está en DOS redes: la interna (para la BD) y `dokploy-network`
+#     (para que Traefik la vea). Sin la segunda, el dominio da 404.
+#   - `env_file: [.env]`: sin esto, Dokploy vuelca las variables a .env pero
+#     NO las inyecta en el contenedor y arranca con todo vacío.
+#   - Volumen con nombre `pgdata`: NUNCA ruta del host (Dokploy la limpia).
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: voiceops-db
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      APP_DB_USER: ${APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+    container_name: voiceops-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: [.env]
+    # NO `ports:`. Traefik publica.
+    expose:
+      - "3000"
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.voiceops-web.rule=Host(`${APP_DOMAIN}`)
+      - traefik.http.routers.voiceops-web.entrypoints=websecure
+      - traefik.http.routers.voiceops-web.tls.certresolver=letsencrypt
+      - traefik.http.services.voiceops-web.loadbalancer.server.port=3000
+
+networks:
+  default:
+    driver: bridge
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:

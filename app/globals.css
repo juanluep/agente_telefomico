@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+/* Modo oscuro basado en clase (toggle en el layout). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ────────────────────────────────────────────────────────────
+   Tokens de diseño — «naranja piedra». Cambiar la marca es tocar
+   una rampa aquí, no esparcir hex por las vistas (§12).
+   Pasos de surface realmente definidos: 0/100/200/300/700/800/
+   900/950. Tailwind 4 NO avisa si pides un paso que no existe y
+   la utilidad no se genera — usar solo estos.
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+
+  /* Acento naranja vivo */
+  --color-brand-50: #fef4ee;
+  --color-brand-100: #fde6d6;
+  --color-brand-200: #fbc9a9;
+  --color-brand-300: #f8a578;
+  --color-brand-400: #f47d44;
+  --color-brand-500: #f0561d;
+  --color-brand-600: #e8490c;
+  --color-brand-700: #c43d08;
+  --color-brand-800: #9d320c;
+  --color-brand-900: #7e2a0e;
+  --color-brand-950: #44190a;
+
+  /* Gris piedra cálido */
+  --color-surface-0: #ffffff;
+  --color-surface-100: #f2f1ee;
+  --color-surface-200: #e1ded9;
+  --color-surface-300: #d3cfc8;
+  --color-surface-700: #5a554e;
+  --color-surface-800: #3a3631;
+  --color-surface-900: #201e1c;
+  --color-surface-950: #16140f;
+
+  --color-ink: #201e1c;
+
+  /* Estados (pastel: fondo suave + texto oscurecido) */
+  --color-ok-50: #ecfdf3;
+  --color-ok-500: #15803d;
+  --color-ok-700: #14532d;
+  --color-warn-50: #fffbeb;
+  --color-warn-500: #b45309;
+  --color-warn-700: #78350f;
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #dc2626;
+  --color-danger-700: #991b1b;
+
+  /* Gráficas — paleta validada (§12) */
+  --chart-cost: #0d9488;
+  --chart-a: #e8490c;
+  --chart-b: #3d5fa8;
+  --stack-stt: #3d5fa8;
+  --stack-llm: #e8490c;
+  --stack-tts: #0d9488;
+  --stack-fee: #9ca3af;
+
+  /* Trama diagonal decorativa */
+  --texture-stripe: rgba(20, 18, 15, 0.06);
+
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+}
+
+.dark {
+  --color-brand-500: #f0561d;
+  --color-brand-600: #f0561d;
+
+  --color-surface-0: #211e1a;
+  --color-surface-100: #16140f;
+  --color-surface-200: #322e29;
+  --color-surface-300: #3f3a34;
+  --color-surface-700: #c9c4bc;
+  --color-surface-800: #dedacf;
+  --color-surface-900: #f2f1ee;
+  --color-surface-950: #faf9f6;
+
+  --color-ink: #f2f1ee;
+
+  --color-ok-50: #12261c;
+  --color-ok-500: #3fd27a;
+  --color-ok-700: #6ee7a0;
+  --color-warn-50: #2a2008;
+  --color-warn-500: #f0b441;
+  --color-warn-700: #f5cd6b;
+  --color-danger-50: #2a1414;
+  --color-danger-500: #f05858;
+  --color-danger-700: #f48585;
+
+  --chart-cost: #2fa8a8;
+  --chart-a: #f0561d;
+  --chart-b: #6781d9;
+  --stack-stt: #6781d9;
+  --stack-llm: #f0561d;
+  --stack-tts: #2fa8a8;
+  --stack-fee: #6b7280;
+
+  --texture-stripe: rgba(250, 249, 246, 0.06);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--color-surface-100);
+    color: var(--color-surface-900);
+  }
+  * {
+    border-color: var(--color-surface-200);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Utilidades de componente (Tailwind 4: @utility es aplicable con @apply) ── */
+
+@utility card {
+  border-radius: var(--radius-card);
+  border-width: 1px;
+  border-color: var(--color-surface-200);
+  background-color: var(--color-surface-0);
+}
+@utility card-pad {
+  @apply card p-5;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-[0.75rem] px-4 py-2 text-sm
+    font-medium transition-colors cursor-pointer select-none whitespace-nowrap
+    disabled:opacity-50 disabled:pointer-events-none;
+}
+@utility btn-primary {
+  @apply btn bg-ink text-surface-0 hover:opacity-90 dark:bg-surface-0 dark:text-surface-900;
+}
+@utility btn-secondary {
+  @apply btn bg-surface-0 border border-surface-200 text-surface-900 hover:bg-surface-100;
+}
+@utility btn-ghost {
+  @apply btn text-surface-700 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-700 dark:hover:bg-surface-200;
+}
+@utility btn-danger {
+  @apply btn bg-danger-500 text-white hover:bg-danger-700;
+}
+@utility btn-sm {
+  @apply px-3 py-1.5 text-[0.8125rem];
+}
+
+@utility field {
+  @apply w-full rounded-[0.75rem] border border-surface-200 bg-surface-0 px-3.5 py-2.5
+    text-sm text-surface-900 placeholder:text-surface-700/60
+    focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20
+    dark:bg-surface-0 dark:text-surface-900;
+}
+@utility label {
+  @apply mb-1.5 block text-[0.8125rem] font-medium text-surface-700 dark:text-surface-700;
+}
+@utility hint {
+  @apply mt-1 text-xs text-surface-700/80 dark:text-surface-700/80;
+}
+@utility error-text {
+  @apply mt-1 text-xs font-medium text-danger-700 dark:text-danger-500;
+}
+
+@utility seg {
+  @apply inline-flex rounded-full border border-surface-200 bg-surface-100 p-1 gap-1 dark:bg-surface-200;
+}
+@utility seg-item {
+  @apply rounded-full px-3.5 py-1.5 text-sm font-medium text-surface-700 transition-colors cursor-pointer;
+}
+@utility seg-item-active {
+  @apply seg-item bg-surface-0 text-surface-900 border border-surface-200 dark:bg-surface-0 dark:text-surface-900;
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+}
+@utility badge-ok {
+  @apply badge bg-ok-50 text-ok-700 dark:text-ok-500;
+}
+@utility badge-warn {
+  @apply badge bg-warn-50 text-warn-700 dark:text-warn-500;
+}
+@utility badge-danger {
+  @apply badge bg-danger-50 text-danger-700 dark:text-danger-500;
+}
+@utility badge-brand {
+  @apply badge bg-brand-50 text-brand-700;
+}
+@utility badge-neutral {
+  @apply badge bg-surface-100 text-surface-700 dark:bg-surface-200;
+}
+
+@utility texture-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--texture-stripe) 0,
+    var(--texture-stripe) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+}
+
+@utility skeleton {
+  @apply rounded-md bg-surface-200/70 animate-pulse dark:bg-surface-200/40;
+}

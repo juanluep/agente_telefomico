@@ -1,0 +1,62 @@
+{
+  "name": "voiceops",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.0.4",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "tunnel": "node scripts/tunnel.mjs",
+    "vapi:tools:sync": "tsx scripts/vapi-tools-sync.ts",
+    "vapi:pull-catalog": "tsx scripts/vapi-pull-catalog.ts",
+    "vapi:sync": "tsx scripts/vapi-sync.ts"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "2.1.10",
+    "@vapi-ai/server-sdk": "1.2.0",
+    "bcryptjs": "3.0.3",
+    "drizzle-orm": "0.45.2",
+    "libphonenumber-js": "1.13.11",
+    "luxon": "3.7.2",
+    "next": "16.3.1",
+    "pg": "8.23.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "recharts": "3.10.1",
+    "tailwindcss": "4.3.3",
+    "zod": "4.4.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "unrs-resolver",
+      "@tailwindcss/oxide",
+      "sharp"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.6",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/luxon": "^3.7.4",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.21.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.1",
+    "postcss": "8.5.26",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}
